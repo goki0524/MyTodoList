@@ -27,7 +27,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         }
     }
 
-    
+    // + ボタンをタップした時の処理
     @IBAction func tapAddButton(_ sender: Any) {
         // アラードダイアログを生成
         let alertController = UIAlertController(title: "ToDo追加", message: "ToDoを入力してください", preferredStyle: UIAlertController.Style.alert)
@@ -65,11 +65,15 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         present(alertController, animated: true, completion: nil)
     }
     
+    
+    // TABLE VIEW FUNCTION >>>>>>>>>>
+    // テーブルの行数を返却する
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // Todoにの配列の長さを返却する
+        // Todoの配列の長さを返却する
         return todoList.count
     }
     
+    // テーブルの行ごとのセルを返却する
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // Storyboardで指定したtodoCell識別子を利用して再利用可能なセルを取得する
         let cell = tableView.dequeueReusableCell(withIdentifier: "todoCell", for: indexPath)
@@ -89,6 +93,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         return cell
     }
     
+    // セルをタップしたときの処理
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let myTodo = todoList[indexPath.row]
         if myTodo.todoDone {
@@ -107,6 +112,31 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         userDefaults.set(data, forKey: "todoList")
         userDefaults.synchronize()
     }
+    
+    // セルが編集可能であるかを返却する
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    // セルを削除した時の処理
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        // 削除処理かどうか
+        if editingStyle == UITableViewCell.EditingStyle.delete {
+            // ToDoリストから削除
+            todoList.remove(at: indexPath.row)
+            // セルを削除
+            tableView.deleteRows(at: [indexPath], with: UITableView.RowAnimation.fade)
+            // データ保存。Data型にシリアライズする
+            let data: Data = NSKeyedArchiver.archivedData(withRootObject: todoList)
+            // UserDefaultsに保存
+            let userDefaults = UserDefaults.standard
+            userDefaults.set(data, forKey: "todoList")
+            userDefaults.synchronize()
+        }
+    }
+    
+    // TABLE VIEW FUNCTION <<<<<<<<<<
+    
 }
 
 // 独自クラスをシリアライズする際には,NSObjectを継承し
